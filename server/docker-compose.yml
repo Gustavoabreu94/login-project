@@ -1,10 +1,28 @@
 services:
-  pg:
-    container_name: logindb
+  login-db:
     image: bitnami/postgresql:13.16.0
+    privileged: true
     ports:
-      - "5432:5432"
+      - "5431:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=inorbit
+      - POSTGRES_DB=loginDb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  login-api:
+    container_name: login-api
+    image: "node:20.9.0"
+    ports:
+      - "3333:3333"
+    command: sh -c "npm run dev"
+    depends_on:
+      - login-db
+    working_dir: /app
+    env_file: .env
+    volumes:
+      - ./:/app
+
+volumes:
+  db-data:
